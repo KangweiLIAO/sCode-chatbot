@@ -73,9 +73,9 @@ def load_tokenize_data(args):
 
         def clean_text(text):
             # Function to remove HTML tags and specific whitespace characters
-            clean = re.sub('<.*?>', '', text)  # Remove HTML tags
-            clean = re.sub(r'[\n\t\r]', ' ', clean)  # Replace \n, \t, \r with a space
-            return clean
+            # text = re.sub('<.*?>', '', text)  # Remove HTML tags
+            text = re.sub(r'[\n\t\r]', ' ', text)  # Replace \n, \t, \r with a space
+            return text
 
         def preprocess_function(examples):
             source = [clean_text(q) for q in examples['question_body']]
@@ -140,10 +140,10 @@ if __name__ == "__main__":
     parser.add_argument('--load', default='Salesforce/codet5p-220m', type=str)
 
     # Training
-    parser.add_argument('--epochs', default=3, type=int)
-    parser.add_argument('--lr', default=5e-5, type=float)
-    parser.add_argument('--lr-warmup-steps', default=200, type=int)
-    parser.add_argument('--batch-size-per-replica', default=8, type=int)
+    parser.add_argument('--epochs', default=5, type=int)
+    parser.add_argument('--lr', default=5e-4, type=float)
+    parser.add_argument('--lr-warmup-steps', default=250, type=int)
+    parser.add_argument('--batch-size-per-replica', default=16, type=int)
     parser.add_argument('--grad-acc-steps', default=4, type=int)
     parser.add_argument('--local_rank', default=-1, type=int)
     parser.add_argument('--deepspeed', default=None, type=str)
