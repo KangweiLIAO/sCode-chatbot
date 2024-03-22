@@ -18,7 +18,7 @@ def run_training(args, model, train_data):
     print(f"Starting main loop")
 
     training_args = TrainingArguments(
-        report_to='tensorboard',
+        report_to=['tensorboard'],
         output_dir=args.save_dir,
         overwrite_output_dir=False,
 
@@ -156,6 +156,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    os.makedirs(args.save_dir, exist_ok=True)
+    os.makedirs(args.save_dir, exist_ok=True)  # Create save directory if not exists
 
     main(args)
