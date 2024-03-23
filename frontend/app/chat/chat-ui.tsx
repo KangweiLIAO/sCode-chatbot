@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 interface Message {
 	id: number;
@@ -8,29 +8,60 @@ interface Message {
 	sender: 'user' | 'bot';
 }
 
+
 export default function ChatUI() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputText, setInputText] = useState('');
 
-	const handleSend = () => {
-		if (!inputText.trim()) return;
+	useEffect(() => {
+		const fetchData = async () => {
+			const response = await fetch('http://localhost:8000/msg');
+			const msg = await response.json();
+			setMessages(msg);
+		};
+
+		fetchData().then(
+			() => {
+				console.log('Data fetched successfully')
+			},
+			(error) => console.error('Error fetching data:', error)
+		);
+	}, []);
+
+	const handleSend = async () => {
+		if (!inputText.trim()) return; // don't send empty messages
+
 		const newMessage: Message = {
 			id: Date.now(),
 			text: inputText,
 			sender: 'user',
 		};
-		setMessages([...messages, newMessage]);
+
+		// Add the user's message to the conversation immediately
+		setMessages(messages => [...messages, newMessage]);
 		setInputText('');
 
-		// Simulate bot response
-		setTimeout(() => {
-			const botMessage: Message = {
-				id: Date.now(),
-				text: 'Hello! This is a response from the bot.',
-				sender: 'bot',
-			};
-			setMessages((prevMessages) => [...prevMessages, botMessage]);
-		}, 1000);
+		try {
+			// Send the user's message to the backend
+			const response = await fetch('http://localhost:8000/msg', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json', // Tell the server we're sending JSON
+				},
+				body: JSON.stringify(newMessage), // Send the user's message as JSON
+			});
+
+			if (!response.ok) {
+				throw new Error('Network Error: Could not send message to the server.');
+			}
+
+			const botMessage = await response.json(); // Parse the JSON response
+
+			// Update the conversation with the bot's response
+			setMessages(messages => [...messages, botMessage]);
+		} catch (error) {
+			console.error('Error sending message:', error);
+		}
 	};
 
 	return (
