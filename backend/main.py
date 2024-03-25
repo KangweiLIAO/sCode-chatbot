@@ -31,14 +31,9 @@ if credentials_b64 is not None:  # If not running locally, use the service accou
 API_TOKEN = "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"
 MODEL_URL = "google/gemma-7b"
 
-# list of allowed origins for CORS
-origins = [
-    "http://localhost:3000",  # React dev server
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
