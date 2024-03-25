@@ -1,19 +1,32 @@
+import os
+import json
+import base64
 import uuid
 import httpx
+
 from typing import List
-from pydantic import BaseModel
 from datetime import datetime
 
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from google.oauth2 import service_account
 from google.cloud.dialogflowcx_v3.services.agents import AgentsClient
 from google.cloud.dialogflowcx_v3.services.sessions import SessionsClient
 from google.cloud.dialogflowcx_v3.types.session import TextInput, QueryInput, DetectIntentRequest
 
+app = FastAPI()
+
 current_timestamp_ms = int(datetime.now().timestamp() * 1000)
 
-app = FastAPI()
+# Decode environment variable into the service account key
+credentials_b64 = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+
+if credentials_b64 is not None:  # If not running locally, use the service account key file
+    credentials_json = base64.b64decode(credentials_b64)
+    service_account_info = json.loads(credentials_json)
+    google_credential = service_account.Credentials.from_service_account_info(service_account_info)
 
 API_TOKEN = "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"
 MODEL_URL = "google/gemma-7b"
@@ -86,7 +99,10 @@ async def detect_intent_texts(agent, session_id, texts: List[str], language_code
         api_endpoint = f"{location_id}-dialogflow.googleapis.com:443"
         client_options = {"api_endpoint": api_endpoint}
 
-    session_client = SessionsClient(client_options=client_options)
+    if credentials_b64 is not None:
+        session_client = SessionsClient(credentials=google_credential, client_options=client_options)
+    else:
+        session_client = SessionsClient(client_options=client_options)
 
     res_text = []  # list of responses
     for text in texts:
