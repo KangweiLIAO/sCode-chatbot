@@ -4,6 +4,8 @@ import React, {useEffect, useState} from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import TypeIt from "typeit-react";
 
+// const FETCH_URL = 'http://localhost:8000/dialogflow'
+const FETCH_URL = 'https://scode-chatbot-236603824520.herokuapp.com/dialogflow'
 
 interface Message {
 	id: number;
@@ -20,7 +22,7 @@ export default function ChatUI() {
 		const fetchData = async () => {
 			setIsLoading(true)
 			try {
-				const response = await fetch('http://localhost:8000/');
+				const response = await fetch(FETCH_URL);
 				const msg = await response.json();
 				if (Array.isArray(msg)) {
 					setDialog(msg);
@@ -31,7 +33,7 @@ export default function ChatUI() {
 				console.log("Failed to fetch welcome message: ", error);
 			}
 		};
-		fetchData().then(r => {
+		fetchData().then(() => {
 			setIsLoading(false);
 		})
 	}, []);
@@ -50,8 +52,9 @@ export default function ChatUI() {
 		setInputText('');
 
 		try {
+			setIsLoading(true)
 			// Send the user's message to the backend
-			const response = await fetch('http://localhost:8000/dialogflow', {
+			const response = await fetch(FETCH_URL, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json', // Tell the server we're sending JSON
@@ -59,15 +62,13 @@ export default function ChatUI() {
 				body: JSON.stringify(newMessage), // Send the user's message as JSON
 			});
 
-			if (!response.ok) {
-				throw new Error('Network Error: Could not send message to the server.');
-			}
-
 			const botMessage = await response.json(); // Parse the JSON response
 			// Update the conversation with the new response
 			setDialog(messages => [...messages, botMessage]);
 		} catch (error) {
 			console.error('Error sending message:', error);
+		} finally {
+			setIsLoading(false)
 		}
 	};
 
