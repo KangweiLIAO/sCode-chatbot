@@ -1,2 +1,4 @@
+httpx
 fastapi
 uvicorn[standard]
+google-cloud-dialogflow-cx
