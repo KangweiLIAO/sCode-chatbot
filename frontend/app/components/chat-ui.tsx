@@ -30,7 +30,7 @@ export default function ChatUI() {
 
 	const handleListening = () => {
 		if (!listening) {
-			SpeechRecognition.startListening({language: 'zh-HK'});
+			SpeechRecognition.startListening({language: 'en-US'});
 		} else {
 			SpeechRecognition.stopListening();
 		}
@@ -118,9 +118,16 @@ export default function ChatUI() {
 					<div>
 						<button
 							className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-full text-center align-middle
-							font-sans text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20
+							font-sans text-xs font-medium uppercase text-gray-900 transition-all focus:outline-0 hover:bg-gray-900/10 active:bg-gray-900/20
 							disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+							disabled={isLoading}
 							onClick={handleListening}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.preventDefault();
+									handleSend();
+								}
+							}}
 							type="button">
 				      <span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
 				        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
