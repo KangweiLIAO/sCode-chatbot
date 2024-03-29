@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import base64
 import uuid
@@ -15,6 +16,11 @@ from google.oauth2 import service_account
 from google.cloud.dialogflowcx_v3.services.agents import AgentsClient
 from google.cloud.dialogflowcx_v3.services.sessions import SessionsClient
 from google.cloud.dialogflowcx_v3.types.session import TextInput, QueryInput, DetectIntentRequest
+
+# Dialogflow parameters:
+# project_id = "scode-chatbot-418101"
+# location = "us-central1"
+# agent_id = "13d35f11-b74c-4dd9-8656-01e997795690"
 
 app = FastAPI()
 
@@ -47,31 +53,42 @@ class UserMessage(BaseModel):
 
 
 @app.get("/")
-def read_root():
-    return [{"id": current_timestamp_ms, "text": "Hello, I'm sCode Chatbot!", "sender": "bot"}]
+async def read_root():
+    return {"Hello": "World"}
 
 
 @app.get("/test")
 async def read_messages():
+    """
+    Create a dummy response message
+    :return:
+    """
     return [{"id": current_timestamp_ms, "text": "Hello, I'm sCode Chatbot!", "sender": "bot"}]
 
 
 @app.post("/test")
 async def create_message(message: UserMessage):
+    """
+    Create a dummy message
+    :param message:
+    :return:
+    """
     response = {
         "id": current_timestamp_ms,  # Increment ID for simplicity
-        "text": "This is a response from the bot, I received: " + message.text,
+        "text": "This is a response from backend, received: " + message.text,
         "sender": "bot"
     }
     return response
 
 
-# project_id = "scode-chatbot-418101"
-# location = "us-central1"
-# agent_id = "13d35f11-b74c-4dd9-8656-01e997795690"
-
 @app.post("/dialogflow")
 async def send_message(message: UserMessage):
+    """
+    Send message to Dialogflow and get response
+    :param message:
+    :return:
+    """
+    print("Sending message to Dialogflow...")
     project_id = "scode-chatbot-418101"
     location_id = "us-central1"
     agent_id = "13d35f11-b74c-4dd9-8656-01e997795690"
@@ -81,11 +98,20 @@ async def send_message(message: UserMessage):
     session_id = uuid.uuid4()
     input_text = [message.text]
 
-    response = await detect_intent_texts(agent, session_id, input_text, language_code)
+    response = await detect_and_respond(agent, session_id, input_text, language_code)
     return {"id": message.id + 1, "text": response, "sender": "bot"}
 
 
-async def detect_intent_texts(agent, session_id, texts: List[str], language_code):
+async def detect_and_respond(agent, session_id, texts: List[str], language_code):
+    """
+    Detect intent from the text and get response from HF model
+    :param agent:
+    :param session_id:
+    :param texts:
+    :param language_code:
+    :return:
+    """
+    print("Detecting intent...")
     session_path = f"{agent}/sessions/{session_id}"
     client_options = None
     agent_components = AgentsClient.parse_agent_path(agent)
@@ -109,26 +135,45 @@ async def detect_intent_texts(agent, session_id, texts: List[str], language_code
         response = session_client.detect_intent(request=request)
         intent_name = response.query_result.intent.display_name
         print(f"Detected intent: {intent_name}")
-        if ("code_query" in intent_name):
-            res_text = await get_code_response(text)
+        if intent_name == '':
+            res_text = await get_model_response(text)
+        elif "code_query" in intent_name:
+            res_text = await get_model_response(text, True)
         else:
             for msg in response.query_result.response_messages:
-                # join text segments to a single string
                 if msg.text.text:
-                    res_text.append(" ".join(msg.text.text))
+                    res_text.append(' '.join(msg.text.text))
     return res_text
 
 
-async def get_code_response(q_text: str):
+async def get_model_response(q_text: str, is_query=False):
+    """
+    Get response from Hugging Face model
+    :param q_text:
+    :param is_query:
+    :return:
+    """
+    print("Getting model response...")
     headers = {"Authorization": f"Bearer {API_TOKEN}"}
-    payload = {"inputs": q_text, "parameters": {
-        "temperature": 0.45,
-        "return_full_text": False,
-    }}
+    inputs = ("Use <code> to highlight code snippets in your answer. "
+              "The answer for the question (") + q_text + ") is:" if is_query \
+        else "Provide a response for this sentence (" + q_text + "):"
+    payload = {
+        "inputs": inputs,
+        "parameters": {
+            "top_p": 0.9,
+            "temperature": 0.2,
+            "max_length": 250,
+            "repetition_penalty": 1.2,
+            "return_full_text": False,
+        }
+    }
     async with httpx.AsyncClient() as client:
         response = await client.post(f"https://api-inference.huggingface.co/models/{MODEL_URL}",
                                      json=payload, headers=headers)
+        print("Response status code:", response.status_code)
         if response.status_code == 200:
-            return response.json()[0]["generated_text"]
+            print("Generated response: " + response.json()[0]["generated_text"][2:30] + "...")
+            return response.json()[0]["generated_text"].replace('\n', ' ').strip()
         else:
             raise HTTPException(status_code=response.status_code, detail="Error calling Hugging Face API")

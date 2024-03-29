@@ -5,16 +5,16 @@ import "./globals.css";
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-    title: "sCode ChatBot",
-    description: "Created by Kangwei",
+	title: "sCode ChatBot",
+	description: "Created by Kangwei",
 };
 
 export default function RootLayout({children,}: Readonly<{
-    children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-        <body className={inter.className}>{children}</body>
-        </html>
-    );
+	return (
+		<html lang="en">
+		<body className={inter.className}>{children}</body>
+		</html>
+	);
 }
