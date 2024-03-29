@@ -99,7 +99,6 @@ async def send_message(message: UserMessage):
     input_text = [message.text]
 
     response = await detect_and_respond(agent, session_id, input_text, language_code)
-    # refine_text(''.join(response))
     return {"id": message.id + 1, "text": response, "sender": "bot"}
 
 
@@ -175,31 +174,6 @@ async def get_model_response(q_text: str, is_query=False):
         print("Response status code:", response.status_code)
         if response.status_code == 200:
             print("Generated response: " + response.json()[0]["generated_text"][2:30] + "...")
-            return response.json()[0]["generated_text"][2:]
+            return response.json()[0]["generated_text"].replace('\n', ' ').strip()
         else:
             raise HTTPException(status_code=response.status_code, detail="Error calling Hugging Face API")
-
-
-def refine_text(text):
-    """
-    Refine the text to keep only the first complete sentence or code statement.
-    This version assumes that a complete sentence or code statement ends with
-    a '.', '?', '!', or ';' followed by a whitespace or end of text, potentially
-    preceded by common closing quotes or brackets.
-
-    :param text: The input text containing sentences or code snippets.
-    :return: The refined text.
-    """
-    # Enhanced pattern to consider ';' and also account for potential code snippets
-    pattern = r'([^.!?;]+[.!?;]["\']?)(\s*|$)'
-
-    # Attempt to find the first complete sentence or code statement
-    match = re.search(pattern, text)
-
-    if match:
-        # Extract the matched text, removing any trailing newlines and stripping whitespace
-        refined_text = match.group().strip()
-        print("Refined text:", refined_text)
-        return refined_text
-    else:
-        return text.strip()
