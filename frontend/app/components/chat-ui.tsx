@@ -4,9 +4,8 @@ import React, {useEffect, useState} from 'react';
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition'
 import TypeIt from "typeit-react";
 
-const FETCH_URL = 'http://localhost:8000/dialogflow'
-
-// const FETCH_URL = 'https://scode-chatbot-236603824520.herokuapp.com/dialogflow'
+// const FETCH_URL = 'http://localhost:8000/dialogflow'
+const FETCH_URL = 'https://scode-chatbot-236603824520.herokuapp.com/dialogflow'
 
 interface Message {
 	id: number;
@@ -23,7 +22,6 @@ export default function ChatUI() {
 		transcript,
 		listening,
 		resetTranscript,
-		browserSupportsSpeechRecognition
 	} = useSpeechRecognition();
 
 	useEffect(() => {
