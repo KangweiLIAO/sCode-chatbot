@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const About = () => {
+export default function About() {
 	return (
 		<div className="min-h-screen bg-gray-300 flex flex-col justify-center">
 			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,5 +28,3 @@ const About = () => {
 		</div>
 	);
 };
-
-export default About;
