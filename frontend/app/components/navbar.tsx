@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const Navbar = () => {
+export default function Navbar() {
 	return (
 		<nav className="fixed bg-opacity-50 backdrop-filter backdrop-blur-lg bg-white top-0 left-0 right-0 z-50 p-2
 		shadow-lg shadow-blue-800/10">
@@ -20,5 +20,3 @@ const Navbar = () => {
 		</nav>
 	);
 };
-
-export default Navbar;
