@@ -155,15 +155,19 @@ async def get_model_response(q_text: str, is_query=False):
     """
     print("Getting model response...")
     headers = {"Authorization": f"Bearer {API_TOKEN}"}
-    inputs = ("Use <code> to highlight code snippets in your answer. "
-              "The answer for the question (") + q_text + ") is:" if is_query \
-        else "Provide a response for this sentence (" + q_text + "):"
+
+    prompts = ("Given the context and type of question, craft an appropriate response as follows: "
+               "If asked about well-being, respond warmly and concisely. For direct questions, provide brief, "
+               "direct answers or instructions. For complex inquiries or problems, offer a clear, step-by-step "
+               "explanation or solution. ")
+    inputs = prompts + "Example input: '" + q_text + "'"
+
     payload = {
         "inputs": inputs,
         "parameters": {
-            "top_p": 0.9,
+            "top_p": 0.8,
             "temperature": 0.2,
-            "max_length": 250,
+            "max_length": 320,
             "repetition_penalty": 1.2,
             "return_full_text": False,
         }

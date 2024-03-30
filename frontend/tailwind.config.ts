@@ -18,9 +18,16 @@ const config: Config = {
 					'0%': {opacity: '0', transform: 'scale(0.95)'},
 					'100%': {opacity: '1', transform: 'scale(1)'},
 				},
+				flyRight: {
+					'0%': {opacity: '1', transform: 'translateX(0)'},
+					'49.99%': {opacity: '0', transform: 'translateX(100%)'},
+					'50%': {opacity: '0', transform: 'translateX(-100%)'},
+					'100%': {opacity: '1', transform: 'translateX(0)'},
+				}
 			},
 			animation: {
 				popIn: 'popIn 0.5s ease-out',
+				flyRight: 'flyRight 0.65s ease-in-out',
 			},
 		},
 	},
