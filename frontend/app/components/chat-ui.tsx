@@ -108,7 +108,7 @@ export default function ChatUI() {
 			</div>
 
 			{/* Text Input */}
-			<div className="p-4 pl-12 pr-12">
+			<div className="p-4 pl-8 pr-8">
 				<div
 					className="flex max-w-6xl mx-auto flex-row items-center gap-2 rounded-[16px] border border-gray-900/10 bg-gray-800 p-2">
 					<div className="relative grid h-full w-full min-w-[200px]">
