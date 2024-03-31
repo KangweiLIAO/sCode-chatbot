@@ -84,8 +84,8 @@ export default function ChatUI() {
 
 	// @ts-ignore
 	return (
-		<main className="flex flex-col h-screen bg-gray-300 pt-20">
-			<div className="flex-grow overflow-auto p-4 space-y-2">
+		<main className="flex flex-col h-screen bg-gray-300">
+			<div className="flex-grow overflow-auto p-4 space-y-2 pt-24">
 				{dialog.map((message, index) => (
 					// Display each message in the conversation
 					<div key={index} ref={dialogEndRef} className={`p-2 ${message.sender === 'user' ?
@@ -108,7 +108,7 @@ export default function ChatUI() {
 			</div>
 
 			{/* Text Input */}
-			<div className="p-4 pl-8 pr-8">
+			<div className="p-4 pl-8 pr-8 pb-6 sm:pb-5">
 				<div
 					className="flex max-w-6xl mx-auto flex-row items-center gap-2 rounded-[16px] border border-gray-900/10 bg-gray-800 p-2">
 					<div className="relative grid h-full w-full min-w-[200px]">
@@ -182,7 +182,7 @@ export default function ChatUI() {
 						</button>
 					</div>
 				</div>
-				<p className="p-2 mx-auto text-sm text-gray-500 text-center">
+				<p className="hidden sm:block p-2 mx-auto text-sm text-gray-500 text-center">
 					sCode usually make mistakes. Consider using ChatGPT instead.
 				</p>
 			</div>
