@@ -1,4 +1,4 @@
+accelerate
 transformers
 datasets
-accelerate
 tensorboard
